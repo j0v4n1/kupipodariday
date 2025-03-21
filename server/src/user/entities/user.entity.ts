@@ -2,14 +2,15 @@ import { BaseEntity } from '@app/common/base.entity';
 import { OfferEntity } from '@app/offer/entities/offer.entity';
 import { WishEntity } from '@app/wish/entities/wish.entity';
 import { WishlistEntity } from '@app/wishlist/entities/wishlist.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import { hash } from 'bcrypt';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
   @Column({ unique: true })
   username: string;
 
-  @Column({ length: 200, default: 'Пока ничего не рассказал о себе' })
+  @Column({ default: 'Пока ничего не рассказал о себе' })
   about: string;
 
   @Column({ default: 'https://i.pravatar.cc/300' })
@@ -31,4 +32,9 @@ export class UserEntity extends BaseEntity {
     onDelete: 'CASCADE',
   })
   wishlists: WishlistEntity[];
+
+  @BeforeInsert()
+  async hashPassword() {
+    if (this.password) this.password = await hash(this.password, 10);
+  }
 }
