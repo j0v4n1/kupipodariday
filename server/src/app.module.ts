@@ -7,8 +7,6 @@ import { WishModule } from '@app/wish/wish.module';
 import { WishlistModule } from '@app/wishlist/wishlist.module';
 import { OfferModule } from '@app/offer/offer.module';
 import { AuthModule } from './auth/auth.module';
-import { JwtModule } from './jwt/jwt.module';
-import { PassportModule } from './passport/passport.module';
 import AppDataSource from '@app/data-source';
 
 @Module({
@@ -19,8 +17,6 @@ import AppDataSource from '@app/data-source';
     WishlistModule,
     OfferModule,
     AuthModule,
-    JwtModule,
-    PassportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

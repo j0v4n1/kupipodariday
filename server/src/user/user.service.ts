@@ -1,29 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { UserEntity } from '@app/user/entities/user.entity';
+import { User } from '@app/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto } from '@app/user/dto/create-user.dto';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  findAll() {
-    return `This action returns all user`;
-  }
+  async create(createUserDto: CreateUserDto) {
+    const userByEmail = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
 
-  async findOne(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    return user;
-  }
+    const userByUsername = await this.userRepository.findOne({
+      where: { username: createUserDto.username },
+    });
 
-  update(id: number) {
-    return `This action updates a #${id} user`;
-  }
+    if (userByEmail || userByUsername) {
+      throw new HttpException(
+        'Пользователь с таким email или username уже зарегистрирован',
+        HttpStatus.CONFLICT,
+      );
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    const user = this.userRepository.create({
+      ...createUserDto,
+      about: createUserDto.about === '' ? undefined : createUserDto.about,
+    });
+
+    await this.userRepository.save(user);
+
+    return {
+      id: user.id,
+      username: user.username,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      createdAt: user.createdAt.toString(),
+      updatedAt: user.updatedAt.toString(),
+    };
   }
 }
