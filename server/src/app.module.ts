@@ -6,6 +6,7 @@ import { UserModule } from '@app/user/user.module';
 import { WishModule } from '@app/wish/wish.module';
 import { WishlistModule } from '@app/wishlist/wishlist.module';
 import { OfferModule } from '@app/offer/offer.module';
+import { AuthModule } from './auth/auth.module';
 import AppDataSource from '@app/data-source';
 
 @Module({
@@ -15,6 +16,7 @@ import AppDataSource from '@app/data-source';
     WishModule,
     WishlistModule,
     OfferModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

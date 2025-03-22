@@ -1,15 +1,16 @@
 import { BaseEntity } from '@app/common/base.entity';
-import { OfferEntity } from '@app/offer/entities/offer.entity';
-import { WishEntity } from '@app/wish/entities/wish.entity';
-import { WishlistEntity } from '@app/wishlist/entities/wishlist.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Offer } from '@app/offer/entities/offer.entity';
+import { Wish } from '@app/wish/entities/wish.entity';
+import { Wishlist } from '@app/wishlist/entities/wishlist.entity';
+import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
+import { hash } from 'bcrypt';
 
 @Entity('users')
-export class UserEntity extends BaseEntity {
+export class User extends BaseEntity {
   @Column({ unique: true })
   username: string;
 
-  @Column({ length: 200, default: 'Пока ничего не рассказал о себе' })
+  @Column({ default: 'Пока ничего не рассказал о себе' })
   about: string;
 
   @Column({ default: 'https://i.pravatar.cc/300' })
@@ -21,14 +22,23 @@ export class UserEntity extends BaseEntity {
   @Column()
   password: string;
 
-  @OneToMany(() => WishEntity, (wish) => wish.owner, { onDelete: 'CASCADE' })
-  wishes: WishEntity[];
+  @Column({ default: null, nullable: true })
+  refreshToken: string;
 
-  @OneToMany(() => OfferEntity, (offer) => offer.user, { onDelete: 'CASCADE' })
-  offers: OfferEntity[];
+  @OneToMany(() => Wish, (wish) => wish.owner, { onDelete: 'CASCADE' })
+  wishes: Wish[];
 
-  @OneToMany(() => WishlistEntity, (wishlist) => wishlist.user, {
+  @OneToMany(() => Offer, (offer) => offer.user, { onDelete: 'CASCADE' })
+  offers: Offer[];
+
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.user, {
     onDelete: 'CASCADE',
   })
-  wishlists: WishlistEntity[];
+  wishlists: Wishlist[];
+
+  @BeforeInsert()
+  async hashData() {
+    if (this.password) this.password = await hash(this.password, 10);
+    if (this.refreshToken) this.refreshToken = await hash(this.refreshToken, 10);
+  }
 }

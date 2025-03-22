@@ -1,11 +1,11 @@
 import { BaseEntity } from '@app/common/base.entity';
-import { OfferEntity } from '@app/offer/entities/offer.entity';
-import { UserEntity } from '@app/user/entities/user.entity';
-import { WishlistEntity } from '@app/wishlist/entities/wishlist.entity';
+import { Offer } from '@app/offer/entities/offer.entity';
+import { User } from '@app/user/entities/user.entity';
+import { Wishlist } from '@app/wishlist/entities/wishlist.entity';
 import { Column, Entity, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity('wishes')
-export class WishEntity extends BaseEntity {
+export class Wish extends BaseEntity {
   @Column({ length: 250 })
   name: string;
 
@@ -21,20 +21,20 @@ export class WishEntity extends BaseEntity {
   @Column({ scale: 2 })
   raised: number;
 
-  @ManyToOne(() => UserEntity, (user) => user.wishes, { onDelete: 'CASCADE' })
-  owner: UserEntity;
+  @ManyToOne(() => User, (user) => user.wishes, { onDelete: 'CASCADE' })
+  owner: User;
 
   @Column({ length: 1024 })
   description: string;
 
-  @OneToMany(() => OfferEntity, (offer) => offer.item, { onDelete: 'CASCADE' })
-  offers: OfferEntity[];
+  @OneToMany(() => Offer, (offer) => offer.item, { onDelete: 'CASCADE' })
+  offers: Offer[];
 
   @Column({ type: 'int', default: 0 })
   copied: number;
 
-  @ManyToMany(() => WishlistEntity, (wishlist) => wishlist.items, {
+  @ManyToMany(() => Wishlist, (wishlist) => wishlist.items, {
     onDelete: 'CASCADE',
   })
-  wishlists: WishlistEntity[];
+  wishlists: Wishlist[];
 }
