@@ -31,8 +31,8 @@ export class AuthController {
 
   @Post('signin')
   @UseGuards(LocalGuard)
-  signin(@Req() req: Request, @Res() res: Response) {
-    const tokens = this.authService.auth(req.user as User);
+  async signin(@Req() req: Request, @Res() res: Response) {
+    const tokens = await this.authService.auth(req.user as User);
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,

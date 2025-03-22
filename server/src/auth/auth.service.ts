@@ -2,12 +2,16 @@ import { User } from '@app/user/entities/user.entity';
 import { UserService } from '@app/user/user.service';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 import { compare } from 'bcrypt';
 import 'dotenv/config';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
   ) {}
@@ -22,7 +26,7 @@ export class AuthService {
     return null;
   }
 
-  generateTokes(payload: { [key: string]: number }) {
+  generateTokes(payload: { id: number }) {
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: '7d',
@@ -32,9 +36,10 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  auth(user: User) {
-    const payload = { sub: user.id };
+  async auth(user: User) {
+    const payload = { id: user.id, username: user.username, email: user.email };
     const tokens = this.generateTokes(payload);
+    await this.userRepository.update({ id: user.id }, { refreshToken: tokens.refreshToken });
     return { ...tokens };
   }
 }
