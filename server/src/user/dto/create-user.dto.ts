@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, MinLength, MaxLength, IsUrl } from 'class-validator';
+import { IsEmail, IsNotEmpty, MinLength, MaxLength, IsUrl, IsOptional } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -6,10 +6,11 @@ export class CreateUserDto {
   @MaxLength(64)
   readonly username: string;
 
-  @MinLength(0)
+  @IsOptional()
   @MaxLength(200)
   readonly about: string;
 
+  @IsOptional()
   @IsUrl()
   readonly avatar: string;
 

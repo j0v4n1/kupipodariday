@@ -3,7 +3,7 @@ import { User } from '@app/user/entities/user.entity';
 import { Wish } from '@app/wish/entities/wish.entity';
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 
-@Entity()
+@Entity('wishlists')
 export class Wishlist extends BaseEntity {
   @Column({ length: 250 })
   name: string;

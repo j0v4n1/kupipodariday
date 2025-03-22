@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { User } from '@app/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from '@app/user/dto/create-user.dto';
+import { SignupUserResponseDto } from '@app/auth/dto/signup-user-response.dto';
 
 @Injectable()
 export class UserService {
@@ -11,7 +12,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<SignupUserResponseDto> {
     const userByEmail = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -43,5 +44,13 @@ export class UserService {
       createdAt: user.createdAt.toString(),
       updatedAt: user.updatedAt.toString(),
     };
+  }
+
+  async findByUsername(username: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { username } });
+    if (!user) {
+      throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+    }
+    return user;
   }
 }

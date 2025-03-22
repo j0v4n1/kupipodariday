@@ -1,12 +1,21 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { User } from '@app/user/entities/user.entity';
+import { UserService } from '@app/user/user.service';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '@app/user/entities/user.entity';
+import { LocalStrategy } from '@app/strategies/local.strategy';
+import 'dotenv/config';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET_ACCESS,
+    }),
+  ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, UserService, LocalStrategy],
 })
 export class AuthModule {}

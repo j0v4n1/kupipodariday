@@ -5,7 +5,7 @@ import { Wishlist } from '@app/wishlist/entities/wishlist.entity';
 import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm';
 import { hash } from 'bcrypt';
 
-@Entity()
+@Entity('users')
 export class User extends BaseEntity {
   @Column({ unique: true })
   username: string;
@@ -22,6 +22,9 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
+  @Column({ default: null, nullable: true })
+  refreshToken: string;
+
   @OneToMany(() => Wish, (wish) => wish.owner, { onDelete: 'CASCADE' })
   wishes: Wish[];
 
@@ -34,7 +37,8 @@ export class User extends BaseEntity {
   wishlists: Wishlist[];
 
   @BeforeInsert()
-  async hashPassword() {
+  async hashData() {
     if (this.password) this.password = await hash(this.password, 10);
+    if (this.refreshToken) this.refreshToken = await hash(this.refreshToken, 10);
   }
 }

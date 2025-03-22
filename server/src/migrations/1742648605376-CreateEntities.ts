@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class CreateEntities1742313948781 implements MigrationInterface {
-    name = 'CreateEntities1742313948781'
+export class CreateEntities1742648605376 implements MigrationInterface {
+    name = 'CreateEntities1742648605376'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "wishlists" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying(250) NOT NULL, "description" character varying(1500) NOT NULL, "image" character varying NOT NULL, "userId" integer, CONSTRAINT "PK_d0a37f2848c5d268d315325f359" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "wishes" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying(250) NOT NULL, "link" character varying NOT NULL, "image" character varying NOT NULL, "price" integer NOT NULL, "raised" integer NOT NULL, "description" character varying(1024) NOT NULL, "copied" integer NOT NULL DEFAULT '0', "ownerId" integer, CONSTRAINT "PK_9c08d144e42ca0aa37a024597ad" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "users" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "username" character varying NOT NULL, "about" character varying(200) NOT NULL DEFAULT 'Пока ничего не рассказал о себе', "avatar" character varying NOT NULL DEFAULT 'https://i.pravatar.cc/300', "email" character varying NOT NULL, "password" character varying NOT NULL, CONSTRAINT "UQ_fe0bb3f6520ee0469504521e710" UNIQUE ("username"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "offers" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "amount" integer NOT NULL, "hidden" boolean NOT NULL DEFAULT false, "userId" integer, "itemId" integer, CONSTRAINT "PK_4c88e956195bba85977da21b8f4" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "users" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "username" character varying NOT NULL, "about" character varying NOT NULL DEFAULT 'Пока ничего не рассказал о себе', "avatar" character varying NOT NULL DEFAULT 'https://i.pravatar.cc/300', "email" character varying NOT NULL, "password" character varying NOT NULL, "refreshToken" character varying NOT NULL, CONSTRAINT "UQ_fe0bb3f6520ee0469504521e710" UNIQUE ("username"), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "wishlists_items_wishes" ("wishlistsId" integer NOT NULL, "wishesId" integer NOT NULL, CONSTRAINT "PK_120261bf94aab7af4e5865c3647" PRIMARY KEY ("wishlistsId", "wishesId"))`);
         await queryRunner.query(`CREATE INDEX "IDX_51615f7431377197e31b942949" ON "wishlists_items_wishes" ("wishlistsId") `);
         await queryRunner.query(`CREATE INDEX "IDX_bff5108d5f4117f9e5da1fad20" ON "wishlists_items_wishes" ("wishesId") `);
@@ -29,8 +29,8 @@ export class CreateEntities1742313948781 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX "public"."IDX_bff5108d5f4117f9e5da1fad20"`);
         await queryRunner.query(`DROP INDEX "public"."IDX_51615f7431377197e31b942949"`);
         await queryRunner.query(`DROP TABLE "wishlists_items_wishes"`);
-        await queryRunner.query(`DROP TABLE "offers"`);
         await queryRunner.query(`DROP TABLE "users"`);
+        await queryRunner.query(`DROP TABLE "offers"`);
         await queryRunner.query(`DROP TABLE "wishes"`);
         await queryRunner.query(`DROP TABLE "wishlists"`);
     }
