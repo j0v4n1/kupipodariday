@@ -19,11 +19,11 @@ import { User } from '@app/user/entities/user.entity';
 import { UserProfileResponseDto } from '@app/user/dto/user-profile.response.dto';
 import { UpdateUserDto } from '@app/auth/dto/update-user.dto';
 
+@UseGuards(JwtGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(JwtGuard)
   @Get('me')
   async getUserProfile(
     @Req() request: Request,
@@ -39,7 +39,6 @@ export class UserController {
     return this.userService.buildUserResponse(user);
   }
 
-  @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe())
   @Patch('me')
   async update(@Body() updateUserDto: UpdateUserDto, @Req() request: Request) {
@@ -48,7 +47,6 @@ export class UserController {
     return this.userService.buildUserResponse(user);
   }
 
-  @UseGuards(JwtGuard)
   @Get(':username')
   async findOne(@Param('username') username: string) {
     const user = await this.userService.findByUsernameOrEmail(username);
@@ -58,16 +56,20 @@ export class UserController {
     return userWithoutEmail;
   }
 
-  @UseGuards(JwtGuard)
   @Post('find')
   async findMany(@Body('query') query: string) {
     return await this.userService.findMany(query);
   }
 
-  @UseGuards(JwtGuard)
   @Get('me/wishes')
   async getOwnWishes(@Req() request: Request) {
     const { id } = request.user as User;
-    return await this.userService.getOwnWishes(id);
+    return await this.userService.getWishes(id);
+  }
+
+  @Get(':username/wishes')
+  async getWishes(@Param('username') username: string) {
+    const user = await this.userService.findByUsernameOrEmail(username);
+    return await this.userService.getWishes(user.id);
   }
 }

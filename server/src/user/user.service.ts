@@ -6,6 +6,7 @@ import { CreateUserDto } from '@app/user/dto/create-user.dto';
 import { UpdateUserDto } from '@app/auth/dto/update-user.dto';
 import { UserProfileResponseDto } from '@app/user/dto/user-profile.response.dto';
 import dataSource from '@app/data-source';
+import { Wish } from '@app/wish/entities/wish.entity';
 
 @Injectable()
 export class UserService {
@@ -58,18 +59,17 @@ export class UserService {
     return user;
   }
 
-  async getOwnWishes(id: number) {
+  async getWishes(id: number) {
     return await dataSource
-      .createQueryBuilder(User, 'user')
-      .leftJoinAndSelect('user.wishes', 'wish')
+      .createQueryBuilder(Wish, 'wish')
+      .leftJoinAndSelect('wish.owner', 'user')
       .where('user.id = :id', { id })
-      .getOne();
+      .getMany();
   }
 
   async findByUsernameOrEmail(identifier: string) {
     const userByEmail = await this.userRepository.findOne({
       where: { email: identifier },
-      select: [],
     });
 
     if (userByEmail) return userByEmail;
