@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Patch,
   Req,
   UseGuards,
@@ -27,17 +28,12 @@ export class UserController {
     const { username } = req.user as User;
     const user = await this.userService.findByUsername(username);
     if (!user) {
-      throw new HttpException('Ошибка валидации переданных значений', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Ошибка валидации переданных значений',
+        HttpStatus.BAD_REQUEST,
+      );
     }
-    return {
-      id: user.id,
-      username: user.username,
-      about: user.about,
-      avatar: user.avatar,
-      email: user.email,
-      createdAt: user.createdAt.toString(),
-      updatedAt: user.updatedAt.toString(),
-    };
+    return this.userService.buildUserResponse(user);
   }
 
   @UseGuards(JwtGuard)
@@ -47,5 +43,14 @@ export class UserController {
     const { id } = req.user as User;
     const user = await this.userService.update(updateUserDto, id);
     return this.userService.buildUserResponse(user);
+  }
+
+  @Get(':identifier')
+  async findOne(@Param('identifier') identifier: string) {
+    const user = await this.userService.findByUsernameOrEmail(identifier);
+    const userResponse = this.userService.buildUserResponse(user);
+    // eslint-disable-next-line
+    const { email, ...userWithoutEmail } = userResponse;
+    return userWithoutEmail;
   }
 }

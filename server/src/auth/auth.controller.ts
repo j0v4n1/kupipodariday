@@ -25,8 +25,11 @@ export class AuthController {
 
   @Post('signup')
   @UsePipes(new ValidationPipe())
-  async create(@Body() createUserDto: CreateUserDto): Promise<SignupUserResponseDto> {
-    return await this.userService.create(createUserDto);
+  async create(
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<SignupUserResponseDto> {
+    const user = await this.userService.create(createUserDto);
+    return this.userService.buildUserResponse(user);
   }
 
   @Post('signin')
