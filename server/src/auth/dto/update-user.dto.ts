@@ -1,19 +1,13 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  MinLength,
-  MaxLength,
-  IsUrl,
-  IsOptional,
-} from 'class-validator';
+import { IsEmail, MaxLength, MinLength, IsOptional, IsUrl } from 'class-validator';
 
-export class CreateUserDto {
-  @IsNotEmpty()
+export class UpdateUserDto {
+  @IsOptional()
   @MinLength(1)
   @MaxLength(64)
   readonly username: string;
 
   @IsOptional()
+  @MinLength(0)
   @MaxLength(200)
   readonly about: string;
 
@@ -21,11 +15,11 @@ export class CreateUserDto {
   @IsUrl()
   readonly avatar: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   readonly email: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MinLength(8)
   readonly password: string;
 }
