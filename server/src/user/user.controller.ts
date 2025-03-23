@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Post,
   Req,
   UseGuards,
   UsePipes,
@@ -24,9 +25,11 @@ export class UserController {
 
   @UseGuards(JwtGuard)
   @Get('me')
-  async getUserProfile(@Req() req: Request): Promise<UserProfileResponseDto> {
-    const { username } = req.user as User;
-    const user = await this.userService.findByUsername(username);
+  async getUserProfile(
+    @Req() request: Request,
+  ): Promise<UserProfileResponseDto> {
+    const { username } = request.user as User;
+    const user = await this.userService.findByUsernameOrEmail(username);
     if (!user) {
       throw new HttpException(
         'Ошибка валидации переданных значений',
@@ -39,18 +42,32 @@ export class UserController {
   @UseGuards(JwtGuard)
   @UsePipes(new ValidationPipe())
   @Patch('me')
-  async update(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
-    const { id } = req.user as User;
+  async update(@Body() updateUserDto: UpdateUserDto, @Req() request: Request) {
+    const { id } = request.user as User;
     const user = await this.userService.update(updateUserDto, id);
     return this.userService.buildUserResponse(user);
   }
 
-  @Get(':identifier')
-  async findOne(@Param('identifier') identifier: string) {
-    const user = await this.userService.findByUsernameOrEmail(identifier);
+  @UseGuards(JwtGuard)
+  @Get(':username')
+  async findOne(@Param('username') username: string) {
+    const user = await this.userService.findByUsernameOrEmail(username);
     const userResponse = this.userService.buildUserResponse(user);
     // eslint-disable-next-line
     const { email, ...userWithoutEmail } = userResponse;
     return userWithoutEmail;
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('find')
+  async findMany(@Body('query') query: string) {
+    return await this.userService.findMany(query);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('me/wishes')
+  async getOwnWishes(@Req() request: Request) {
+    const { id } = request.user as User;
+    return await this.userService.getOwnWishes(id);
   }
 }

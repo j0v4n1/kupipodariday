@@ -16,7 +16,7 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
   async validatePassword(username: string, password: string) {
-    const user = await this.userService.findByUsername(username);
+    const user = await this.userService.findByUsernameOrEmail(username);
     if (!user) throw new HttpException('Пользователь не найден', 404);
     const isPasswordCorrect = await compare(password, user.password);
     if (isPasswordCorrect) {
@@ -40,7 +40,10 @@ export class AuthService {
   async auth(user: User) {
     const payload = { id: user.id, username: user.username, email: user.email };
     const tokens = this.generateTokes(payload);
-    await this.userRepository.update({ id: user.id }, { refreshToken: tokens.refreshToken });
+    await this.userRepository.update(
+      { id: user.id },
+      { refreshToken: tokens.refreshToken },
+    );
     return { ...tokens };
   }
 }
