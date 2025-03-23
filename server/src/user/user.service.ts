@@ -4,6 +4,8 @@ import { User } from '@app/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from '@app/user/dto/create-user.dto';
 import { SignupUserResponseDto } from '@app/auth/dto/signup-user-response.dto';
+import { UpdateUserDto } from '@app/auth/dto/update-user.dto';
+import { UserProfileResponseDto } from '@app/user/dto/user-profile.response.dto';
 
 @Injectable()
 export class UserService {
@@ -46,11 +48,28 @@ export class UserService {
     };
   }
 
-  async findByUsername(username: string): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { username } });
-    if (!user) {
-      throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
-    }
+  async findByUsername(username: string) {
+    return await this.userRepository.findOne({ where: { username } });
+  }
+
+  async update(updateUserDto: UpdateUserDto, id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user)
+      throw new HttpException('Ошибка валидации переданных значений', HttpStatus.BAD_REQUEST);
+    Object.assign(user, updateUserDto);
+    await this.userRepository.save(user);
     return user;
+  }
+
+  buildUserResponse(user: User): UserProfileResponseDto {
+    return {
+      id: user.id,
+      username: user.username,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      createdAt: user.createdAt.toString(),
+      updatedAt: user.updatedAt.toString(),
+    };
   }
 }
