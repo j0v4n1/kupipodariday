@@ -18,7 +18,7 @@ export class Wish extends BaseEntity {
   @Column({ scale: 2 })
   price: number;
 
-  @Column({ scale: 2 })
+  @Column({ scale: 2, default: 0 })
   raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes, { onDelete: 'CASCADE' })

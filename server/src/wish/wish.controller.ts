@@ -1,34 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { WishService } from './wish.service';
-import { CreateWishDto } from './dto/create-wish.dto';
-import { UpdateWishDto } from './dto/update-wish.dto';
+import { Body, Controller, Post, UseGuards, Req } from '@nestjs/common';
+import { CreateWishDto } from '@app/wish/dto/create-wish.dto';
+import { JwtGuard } from '@app/auth/guards/jwt.guard';
+import { Request } from 'express';
+import { User } from '@app/user/entities/user.entity';
 
-@Controller('wish')
+@Controller('wishes')
 export class WishController {
   constructor(private readonly wishService: WishService) {}
 
   @Post()
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishService.create(createWishDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.wishService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.wishService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
-    return this.wishService.update(+id, updateWishDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishService.remove(+id);
+  @UseGuards(JwtGuard)
+  async create(@Body() createWishDto: CreateWishDto, @Req() request: Request) {
+    const { id } = request.user as User;
+    await this.wishService.create(createWishDto, id);
+    return {};
   }
 }
