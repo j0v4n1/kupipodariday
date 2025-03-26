@@ -19,11 +19,11 @@ export class User extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({ select: false })
+  password?: string;
 
-  @Column({ default: null, nullable: true })
-  refreshToken: string;
+  @Column({ default: null, nullable: true, select: false })
+  refreshToken?: string;
 
   @OneToMany(() => Wish, (wish) => wish.owner, { onDelete: 'CASCADE' })
   wishes: Wish[];

@@ -67,18 +67,35 @@ export class UserService {
       .getMany();
   }
 
-  async findByUsernameOrEmail(identifier: string) {
-    const userByEmail = await this.userRepository.findOne({
-      where: { email: identifier },
-    });
+  async findUser(identifier: string | number) {
+    if (typeof identifier === 'string') {
+      const userByEmail = await this.userRepository.findOne({
+        where: { email: identifier },
+      });
 
-    if (userByEmail) return userByEmail;
+      if (userByEmail) return userByEmail;
 
-    const userByUsername = await this.userRepository.findOne({
-      where: { username: identifier },
-    });
+      const userByUsername = await this.userRepository.findOne({
+        where: { username: identifier },
+        select: [
+          'id',
+          'username',
+          'password',
+          'email',
+          'about',
+          'avatar',
+          'createdAt',
+          'updatedAt',
+        ],
+      });
 
-    if (userByUsername) return userByUsername;
+      if (userByUsername) return userByUsername;
+    } else {
+      const userById = await this.userRepository.findOne({
+        where: { id: identifier },
+      });
+      if (userById) return userById;
+    }
 
     throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
   }

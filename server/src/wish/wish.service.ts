@@ -30,4 +30,20 @@ export class WishService {
       throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
     return wish;
   }
+
+  async findWish(wishId: number, userId: number) {
+    const wish = await this.wishRepository.findOne({ where: { id: wishId } });
+    const user = await this.userService.findUserById(userId);
+
+    if (!wish || !user) {
+      throw new HttpException(
+        'Пользователь или подарок не найден',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    wish.owner = user;
+
+    return wish;
+  }
 }

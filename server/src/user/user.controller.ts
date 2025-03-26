@@ -29,7 +29,7 @@ export class UserController {
     @Req() request: Request,
   ): Promise<UserProfileResponseDto> {
     const { username } = request.user as User;
-    const user = await this.userService.findByUsernameOrEmail(username);
+    const user = await this.userService.findUser(username);
     if (!user) {
       throw new HttpException(
         'Ошибка валидации переданных значений',
@@ -49,7 +49,7 @@ export class UserController {
 
   @Get(':username')
   async findOne(@Param('username') username: string) {
-    const user = await this.userService.findByUsernameOrEmail(username);
+    const user = await this.userService.findUser(username);
     const userResponse = this.userService.buildUserResponse(user);
     // eslint-disable-next-line
     const { email, ...userWithoutEmail } = userResponse;
@@ -69,7 +69,7 @@ export class UserController {
 
   @Get(':username/wishes')
   async getWishes(@Param('username') username: string) {
-    const user = await this.userService.findByUsernameOrEmail(username);
+    const user = await this.userService.findUser(username);
     return await this.userService.getWishes(user.id);
   }
 }

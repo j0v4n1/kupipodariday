@@ -16,18 +16,17 @@ export class AuthService {
     private readonly userService: UserService,
   ) {}
   async validatePassword(username: string, password: string) {
-    const user = await this.userService.findByUsernameOrEmail(username);
+    const user = await this.userService.findUser(username);
     if (!user) throw new HttpException('Пользователь не найден', 404);
-    const isPasswordCorrect = await compare(password, user.password);
+    const isPasswordCorrect = await compare(password, user.password!);
     if (isPasswordCorrect) {
-      // eslint-disable-next-line
-      const { password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
+      delete user.password;
+      return user;
     }
     return null;
   }
 
-  generateTokes(payload: { id: number }) {
+  generateTokens(payload: { id: number }) {
     const accessToken = this.jwtService.sign(payload);
     const refreshToken = this.jwtService.sign(payload, {
       expiresIn: '7d',
@@ -39,7 +38,7 @@ export class AuthService {
 
   async auth(user: User) {
     const payload = { id: user.id, username: user.username, email: user.email };
-    const tokens = this.generateTokes(payload);
+    const tokens = this.generateTokens(payload);
     await this.userRepository.update(
       { id: user.id },
       { refreshToken: tokens.refreshToken },

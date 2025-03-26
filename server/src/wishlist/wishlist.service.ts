@@ -5,6 +5,7 @@ import { Wishlist } from '@app/wishlist/entities/wishlist.entity';
 import { Repository } from 'typeorm';
 import { UserService } from '@app/user/user.service';
 import { WishService } from '@app/wish/wish.service';
+import AppDataSource from '@app/data-source';
 
 @Injectable()
 export class WishlistService {
@@ -28,5 +29,13 @@ export class WishlistService {
     wishlist.items = wishes;
 
     return await this.wishlistRepository.save(wishlist);
+  }
+
+  async getAll() {
+    return await AppDataSource.getRepository(Wishlist)
+      .createQueryBuilder('wishlists')
+      .leftJoinAndSelect('wishlists.owner', 'user')
+      .leftJoinAndSelect('wishlists.items', 'wish')
+      .getMany();
   }
 }
