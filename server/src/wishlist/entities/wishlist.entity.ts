@@ -8,20 +8,20 @@ export class Wishlist extends BaseEntity {
   @Column({ length: 250 })
   name: string;
 
-  @Column({ length: 1500 })
+  @Column({ length: 1500, default: 'Подборка подарков для любого случая.' })
   description: string;
 
   @Column()
   image: string;
+
+  @ManyToOne(() => User, (user) => user.wishlists, {
+    onDelete: 'CASCADE',
+  })
+  owner: User;
 
   @ManyToMany(() => Wish, (wish) => wish.wishlists, {
     onDelete: 'CASCADE',
   })
   @JoinTable()
   items: Wish[];
-
-  @ManyToOne(() => User, (user) => user.wishlists, {
-    onDelete: 'CASCADE',
-  })
-  user: User;
 }

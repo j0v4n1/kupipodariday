@@ -94,4 +94,11 @@ export class UserService {
       updatedAt: user.updatedAt.toString(),
     };
   }
+
+  async findUserById(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user)
+      throw new HttpException('Пользователь не найден', HttpStatus.NOT_FOUND);
+    return user;
+  }
 }
