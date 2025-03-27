@@ -4,6 +4,7 @@ import { Wish } from '@app/wish/entities/wish.entity';
 import { Repository } from 'typeorm';
 import { CreateWishDto } from '@app/wish/dto/create-wish.dto';
 import { UserService } from '@app/user/user.service';
+import { UpdateWishDto } from '@app/wish/dto/update-wish.dto';
 
 @Injectable()
 export class WishService {
@@ -43,6 +44,30 @@ export class WishService {
     }
 
     wish.owner = user;
+
+    return wish;
+  }
+
+  isOwnerOfWish(ownerId: number, wishOwnerId: number): boolean {
+    if (ownerId !== wishOwnerId) {
+      throw new HttpException('Вы не автор подарка', HttpStatus.FORBIDDEN);
+    }
+    return true;
+  }
+
+  async update(userId: number, wishId: number, updateWishDto: UpdateWishDto) {
+    const wish = await this.wishRepository.findOne({
+      where: { id: wishId },
+      relations: { owner: true },
+    });
+
+    if (!wish) {
+      throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
+    }
+
+    this.isOwnerOfWish(userId, wish.owner.id);
+
+    Object.assign(wish, updateWishDto);
 
     return wish;
   }
