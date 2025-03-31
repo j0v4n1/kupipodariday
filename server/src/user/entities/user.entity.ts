@@ -43,7 +43,8 @@ export class User extends BaseEntity {
 
   @BeforeUpdate()
   async hashRefreshKey() {
-    if (this.refreshToken)
+    if (this.refreshToken) {
       this.refreshToken = await hash(this.refreshToken, 10);
+    }
   }
 }

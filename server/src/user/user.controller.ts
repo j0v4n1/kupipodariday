@@ -50,10 +50,7 @@ export class UserController {
   @Get(':username')
   async findOne(@Param('username') username: string) {
     const user = await this.userService.findUser(username);
-    const userResponse = this.userService.buildUserResponse(user);
-    // eslint-disable-next-line
-    const { email, ...userWithoutEmail } = userResponse;
-    return userWithoutEmail;
+    return this.userService.buildUserResponse(user);
   }
 
   @Post('find')

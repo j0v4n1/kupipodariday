@@ -21,6 +21,9 @@ export class Wish extends BaseEntity {
   @Column({ scale: 2, default: 0 })
   raised: number;
 
+  @Column({ default: null, nullable: true })
+  originalId: number;
+
   @ManyToOne(() => User, (user) => user.wishes, { onDelete: 'CASCADE' })
   owner: User;
 

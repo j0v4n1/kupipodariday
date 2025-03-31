@@ -15,6 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
   ) {}
+
   async validatePassword(username: string, password: string) {
     const user = await this.userService.findUser(username);
     if (!user) throw new HttpException('Пользователь не найден', 404);
@@ -39,10 +40,9 @@ export class AuthService {
   async auth(user: User) {
     const payload = { id: user.id, username: user.username, email: user.email };
     const tokens = this.generateTokens(payload);
-    await this.userRepository.update(
-      { id: user.id },
-      { refreshToken: tokens.refreshToken },
-    );
+    const userWithoutToken = await this.userService.findUserById(user.id);
+    userWithoutToken.refreshToken = tokens.refreshToken;
+    await this.userRepository.save(userWithoutToken);
     return { ...tokens };
   }
 }

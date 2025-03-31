@@ -8,6 +8,7 @@ import {
   Get,
   Param,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { CreateWishDto } from '@app/wish/dto/create-wish.dto';
 import { JwtGuard } from '@app/auth/guards/jwt.guard';
@@ -27,10 +28,14 @@ export class WishController {
     return {};
   }
 
-  @Get(':id')
-  async findOne(@Param() wishId: { id: string }, @Req() request: Request) {
-    const userId = request.user as User;
-    return this.wishService.findWish(Number(wishId.id), userId.id);
+  @Get('last')
+  async findLast() {
+    return await this.wishService.findLast();
+  }
+
+  @Get('top')
+  async findTop() {
+    return await this.wishService.findTop();
   }
 
   @Patch(':id')
@@ -41,5 +46,24 @@ export class WishController {
   ) {
     const user = request.user as User;
     return this.wishService.update(user.id, Number(wish.id), updateWishDto);
+  }
+
+  @Delete(':id')
+  async removeOne(@Param() wish: { id: string }, @Req() request: Request) {
+    const user = request.user as User;
+    return this.wishService.removeOne(user.id, Number(wish.id));
+  }
+
+  @Post(':id/copy')
+  async copyWish(@Param() wish: { id: string }, @Req() request: Request) {
+    const user = request.user as User;
+    await this.wishService.copyWish(Number(wish.id), user.id);
+    return {};
+  }
+
+  @Get(':id')
+  async findOne(@Param() wishId: { id: string }, @Req() request: Request) {
+    const userId = request.user as User;
+    return this.wishService.findWish(Number(wishId.id), userId.id);
   }
 }
