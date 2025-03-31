@@ -33,7 +33,7 @@ export class WishService {
     return wish;
   }
 
-  async findWish(wishId: number, userId: number) {
+  async findOne(wishId: number, userId: number) {
     const wish = await this.wishRepository.findOne({ where: { id: wishId } });
     const user = await this.userService.findUserById(userId);
 

@@ -64,6 +64,6 @@ export class WishController {
   @Get(':id')
   async findOne(@Param() wishId: { id: string }, @Req() request: Request) {
     const userId = request.user as User;
-    return this.wishService.findWish(Number(wishId.id), userId.id);
+    return this.wishService.findOne(Number(wishId.id), userId.id);
   }
 }
