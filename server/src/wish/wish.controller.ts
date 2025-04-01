@@ -45,7 +45,11 @@ export class WishController {
     @Body() updateWishDto: UpdateWishDto,
   ) {
     const user = request.user as User;
-    return this.wishService.update(user.id, Number(wish.id), updateWishDto);
+    return await this.wishService.update(
+      user.id,
+      Number(wish.id),
+      updateWishDto,
+    );
   }
 
   @Delete(':id')

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Wishlist } from '@app/wishlist/entities/wishlist.entity';
@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { UserService } from '@app/user/user.service';
 import { WishService } from '@app/wish/wish.service';
 import AppDataSource from '@app/data-source';
+import { UpdateWishlistDto } from '@app/wishlist/dto/update-wishlist.dto';
 
 @Injectable()
 export class WishlistService {
@@ -48,5 +49,33 @@ export class WishlistService {
       .leftJoinAndSelect('wishlists.owner', 'user')
       .leftJoinAndSelect('wishlists.items', 'wish')
       .getMany();
+  }
+
+  async update(
+    userId: number,
+    wishlistId: number,
+    updateWishlistDto: UpdateWishlistDto,
+  ) {
+    const wishlist = await this.wishlistRepository.findOne({
+      where: { id: wishlistId },
+      relations: { owner: true },
+    });
+
+    if (!wishlist) {
+      throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
+    }
+
+    this.isOwnerOfWishlist(userId, wishlist.owner.id);
+
+    Object.assign(wishlist, updateWishlistDto);
+
+    return wishlist;
+  }
+
+  isOwnerOfWishlist(ownerId: number, wishlistOwnerId: number): boolean {
+    if (ownerId !== wishlistOwnerId) {
+      throw new HttpException('Вы не автор вишлиста', HttpStatus.FORBIDDEN);
+    }
+    return true;
   }
 }
