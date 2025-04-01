@@ -40,6 +40,7 @@ export const SignIn = ({ extraClass = "" }) => {
     errorMessage && setErrorMessage("");
     try {
       const response = await loginUser(userData.username, userData.password);
+      console.log(response);
       if (response && response.access_token) {
         const user = await getOwnUser();
         setUserCtx(user);

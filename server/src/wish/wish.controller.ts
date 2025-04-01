@@ -1,34 +1,73 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { WishService } from './wish.service';
-import { CreateWishDto } from './dto/create-wish.dto';
-import { UpdateWishDto } from './dto/update-wish.dto';
+import {
+  Body,
+  Controller,
+  Post,
+  UseGuards,
+  Req,
+  Get,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
+import { CreateWishDto } from '@app/wish/dto/create-wish.dto';
+import { JwtGuard } from '@app/auth/guards/jwt.guard';
+import { Request } from 'express';
+import { User } from '@app/user/entities/user.entity';
+import { UpdateWishDto } from '@app/wish/dto/update-wish.dto';
 
-@Controller('wish')
+@UseGuards(JwtGuard)
+@Controller('wishes')
 export class WishController {
   constructor(private readonly wishService: WishService) {}
 
   @Post()
-  create(@Body() createWishDto: CreateWishDto) {
-    return this.wishService.create(createWishDto);
+  async create(@Body() createWishDto: CreateWishDto, @Req() request: Request) {
+    const { id } = request.user as User;
+    await this.wishService.create(createWishDto, id);
+    return {};
   }
 
-  @Get()
-  findAll() {
-    return this.wishService.findAll();
+  @Get('last')
+  async findLast() {
+    return await this.wishService.findLast();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.wishService.findOne(+id);
+  @Get('top')
+  async findTop() {
+    return await this.wishService.findTop();
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateWishDto: UpdateWishDto) {
-    return this.wishService.update(+id, updateWishDto);
+  async update(
+    @Param() wish: { id: string },
+    @Req() request: Request,
+    @Body() updateWishDto: UpdateWishDto,
+  ) {
+    const user = request.user as User;
+    return await this.wishService.update(
+      user.id,
+      Number(wish.id),
+      updateWishDto,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.wishService.remove(+id);
+  async removeOne(@Param() wish: { id: string }, @Req() request: Request) {
+    const user = request.user as User;
+    return this.wishService.removeOne(user.id, Number(wish.id));
+  }
+
+  @Post(':id/copy')
+  async copyWish(@Param() wish: { id: string }, @Req() request: Request) {
+    const user = request.user as User;
+    await this.wishService.copyWish(Number(wish.id), user.id);
+    return {};
+  }
+
+  @Get(':id')
+  async findOne(@Param() wishId: { id: string }, @Req() request: Request) {
+    const userId = request.user as User;
+    return this.wishService.findOne(Number(wishId.id), userId.id);
   }
 }
