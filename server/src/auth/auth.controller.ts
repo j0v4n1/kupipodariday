@@ -7,6 +7,7 @@ import {
   Res,
   ValidationPipe,
   UsePipes,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from '@app/user/dto/create-user.dto';
 import { SignupUserResponseDto } from '@app/auth/dto/signup-user-response.dto';
@@ -34,14 +35,30 @@ export class AuthController {
 
   @Post('signin')
   @UseGuards(LocalGuard)
-  async signin(@Req() req: Request, @Res() res: Response) {
-    const tokens = await this.authService.auth(req.user as User);
-    res.cookie('refreshToken', tokens.refreshToken, {
+  async signin(@Req() request: Request, @Res() response: Response) {
+    const tokens = await this.authService.auth(request.user as User);
+    response.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.json({ access_token: tokens.accessToken });
+    return response.json({ access_token: tokens.accessToken });
+  }
+
+  @Post('refresh')
+  async refreshToken(@Req() request: Request, @Res() response: Response) {
+    const refreshToken = request.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Рефреш токен не найден');
+    }
+    const tokens = await this.authService.validateRefreshToken(refreshToken);
+    response.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    return response.json({ access_token: tokens.accessToken });
   }
 }
