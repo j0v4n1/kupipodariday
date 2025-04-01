@@ -17,7 +17,9 @@ export class WishlistService {
   ) {}
   async create(createWishlistDto: CreateWishlistDto, userId: number) {
     const user = await this.userService.findUserById(userId);
+
     const wishlist = this.wishlistRepository.create(createWishlistDto);
+
     const wishes = await Promise.all(
       createWishlistDto.itemsId.map((wish) => {
         return this.wishService.findWishById(wish);
@@ -29,6 +31,15 @@ export class WishlistService {
     wishlist.items = wishes;
 
     return await this.wishlistRepository.save(wishlist);
+  }
+
+  async getOne(wishlistId: number) {
+    return await AppDataSource.getRepository(Wishlist)
+      .createQueryBuilder('wishlists')
+      .leftJoinAndSelect('wishlists.owner', 'user')
+      .leftJoinAndSelect('wishlists.items', 'wish')
+      .where('wishlists.id = :id', { id: wishlistId })
+      .getOne();
   }
 
   async getAll() {
