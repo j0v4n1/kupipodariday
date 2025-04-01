@@ -8,6 +8,7 @@ import {
   UsePipes,
   ValidationPipe,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
@@ -55,5 +56,11 @@ export class WishlistController {
       Number(wishlist.id),
       updateWishlistDto,
     );
+  }
+
+  @Delete(':id')
+  async removeOne(@Param() wishlist: { id: string }, @Req() request: Request) {
+    const user = request.user as User;
+    return this.wishlistService.removeOne(user.id, Number(wishlist.id));
   }
 }

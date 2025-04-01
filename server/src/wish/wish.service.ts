@@ -28,13 +28,15 @@ export class WishService {
       where: { id },
       relations: { owner: true },
     });
+
     if (!wish)
       throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
+
     return wish;
   }
 
   async findOne(wishId: number, userId: number) {
-    const wish = await this.wishRepository.findOne({ where: { id: wishId } });
+    const wish = await this.findWishById(wishId);
     const user = await this.userService.findUserById(userId);
 
     if (!wish || !user) {
@@ -57,14 +59,7 @@ export class WishService {
   }
 
   async update(userId: number, wishId: number, updateWishDto: UpdateWishDto) {
-    const wish = await this.wishRepository.findOne({
-      where: { id: wishId },
-      relations: { owner: true },
-    });
-
-    if (!wish) {
-      throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
-    }
+    const wish = await this.findWishById(wishId);
 
     this.isOwnerOfWish(userId, wish.owner.id);
 
@@ -74,14 +69,7 @@ export class WishService {
   }
 
   async removeOne(userId: number, wishId: number) {
-    const wish = await this.wishRepository.findOne({
-      where: { id: wishId },
-      relations: { owner: true },
-    });
-
-    if (!wish) {
-      throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
-    }
+    const wish = await this.findWishById(wishId);
 
     this.isOwnerOfWish(userId, wish.owner.id);
 

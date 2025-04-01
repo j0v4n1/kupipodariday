@@ -56,14 +56,7 @@ export class WishlistService {
     wishlistId: number,
     updateWishlistDto: UpdateWishlistDto,
   ) {
-    const wishlist = await this.wishlistRepository.findOne({
-      where: { id: wishlistId },
-      relations: { owner: true },
-    });
-
-    if (!wishlist) {
-      throw new HttpException('Подарок не найден', HttpStatus.NOT_FOUND);
-    }
+    const wishlist = await this.findWishlistById(wishlistId);
 
     this.isOwnerOfWishlist(userId, wishlist.owner.id);
 
@@ -77,5 +70,26 @@ export class WishlistService {
       throw new HttpException('Вы не автор вишлиста', HttpStatus.FORBIDDEN);
     }
     return true;
+  }
+
+  async removeOne(userId: number, wishlistId: number) {
+    const wishlist = await this.findWishlistById(wishlistId);
+
+    this.isOwnerOfWishlist(userId, wishlist.owner.id);
+
+    return this.wishlistRepository.remove(wishlist);
+  }
+
+  async findWishlistById(id: number) {
+    const wishlist = await this.wishlistRepository.findOne({
+      where: { id },
+      relations: { owner: true },
+    });
+
+    if (!wishlist) {
+      throw new HttpException('Вишлист не найден', HttpStatus.NOT_FOUND);
+    }
+
+    return wishlist;
   }
 }
